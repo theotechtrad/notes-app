@@ -1184,6 +1184,5 @@ def toggle_pin(current_user, note_id):
     return jsonify({'message': 'Pin toggled!', 'is_pinned': note.is_pinned}), 200
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    # In local dev you can still enable debug by setting FLASK_DEBUG=1 in .env
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
