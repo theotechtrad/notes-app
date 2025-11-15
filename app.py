@@ -7,11 +7,8 @@ import jwt
 import datetime
 from functools import wraps
 import random
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import os
-import base64
+
 
 app = Flask(__name__)
 CORS(app)
@@ -74,44 +71,55 @@ def token_required(f):
         return f(current_user, *args, **kwargs)
     return decorated
 
-# Email Configuration
-EMAIL_ADDRESS = "kaakbhusundii@gmail.com"
-EMAIL_PASSWORD = "zgketjtedozwbgyl"
+
+# SendGrid Configuration
+SENDGRID_API_KEY = "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"
+SENDER_EMAIL = "kaakbhusundii@gmail.com"
+
+import certifi
+import os
+os.environ['SSL_CERT_FILE'] = certifi.where()
 
 def send_otp_email(email, otp):
     try:
-        msg = MIMEMultipart()
-        msg['From'] = EMAIL_ADDRESS
-        msg['To'] = email
-        msg['Subject'] = "Your OTP Code - Authentication System"
+        # Import inside function to avoid issues
+        from sendgrid import SendGridAPIClient
+        from sendgrid.helpers.mail import Mail
         
-        body = f"""
-        <html>
-        <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
-            <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
-                <h2 style="color: #667eea; text-align: center;">🔐 Your OTP Code</h2>
-                <div style="background-color: #667eea; color: white; font-size: 32px; font-weight: bold; text-align: center; padding: 20px; border-radius: 8px; letter-spacing: 5px; margin: 20px 0;">
-                    {otp}
+        message = Mail(
+            from_email=SENDER_EMAIL,
+            to_emails=email,
+            subject='Your OTP Code - Authentication System',
+            html_content=f"""
+            <html>
+            <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
+                    <h2 style="color: #667eea; text-align: center;">🔐 Your OTP Code</h2>
+                    <div style="background-color: #667eea; color: white; font-size: 32px; font-weight: bold; text-align: center; padding: 20px; border-radius: 8px; letter-spacing: 5px; margin: 20px 0;">
+                        {otp}
+                    </div>
+                    <p style="font-size: 14px; color: #666;">This OTP is valid for <strong>5 minutes</strong>.</p>
+                    <p style="font-size: 14px; color: #666;">If you didn't request this, please ignore this email.</p>
                 </div>
-                <p style="font-size: 14px; color: #666;">Valid for 5 minutes.</p>
-            </div>
-        </body>
-        </html>
-        """
+            </body>
+            </html>
+            """
+        )
         
-        msg.attach(MIMEText(body, 'html'))
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        server.send_message(msg)
-        server.quit()
-        print(f"✅ OTP sent to {email}")
+        # Create SendGrid client with custom user agent to bypass SSL issues
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        
+        print(f"✅ OTP sent to {email} via SendGrid (Status: {response.status_code})")
         return True
+        
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"❌ SendGrid Error: {e}")
         print(f"📧 FALLBACK OTP FOR {email}: {otp}")
         return False
-
+        
+        
+        
 # Homepage
 @app.route('/')
 def home():
