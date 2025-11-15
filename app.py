@@ -73,8 +73,8 @@ def token_required(f):
 
 
 # SendGrid Configuration
-SENDGRID_API_KEY = "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"
-SENDER_EMAIL = "kaakbhusundii@gmail.com"
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")
 
 import certifi
 import os
