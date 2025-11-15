@@ -12,15 +12,13 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
 import base64
-from dotenv import load_dotenv
-load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
 # Configuration
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DB')
+app.config['SECRET_KEY'] = 'my-super-secret-key-12345'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -77,9 +75,8 @@ def token_required(f):
     return decorated
 
 # Email Configuration
-EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
-
+EMAIL_ADDRESS = "kaakbhusundii@gmail.com"
+EMAIL_PASSWORD = "zgketjtedozwbgyl"
 
 def send_otp_email(email, otp):
     try:
@@ -1183,6 +1180,6 @@ def toggle_pin(current_user, note_id):
     
     return jsonify({'message': 'Pin toggled!', 'is_pinned': note.is_pinned}), 200
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
