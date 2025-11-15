@@ -82,9 +82,12 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 
 def send_otp_email(email, otp):
     try:
-        # Import inside function to avoid issues
         from sendgrid import SendGridAPIClient
         from sendgrid.helpers.mail import Mail
+        
+        print(f"🔄 Attempting to send OTP to {email}")
+        print(f"📧 From: {SENDER_EMAIL}")
+        print(f"🔑 API Key exists: {bool(SENDGRID_API_KEY)}")
         
         message = Mail(
             from_email=SENDER_EMAIL,
@@ -106,15 +109,18 @@ def send_otp_email(email, otp):
             """
         )
         
-        # Create SendGrid client with custom user agent to bypass SSL issues
         sg = SendGridAPIClient(SENDGRID_API_KEY)
         response = sg.send(message)
         
-        print(f"✅ OTP sent to {email} via SendGrid (Status: {response.status_code})")
+        print(f"✅ SendGrid Response Status: {response.status_code}")
+        print(f"✅ SendGrid Response Body: {response.body}")
+        print(f"✅ OTP sent successfully to {email}")
+        
         return True
         
     except Exception as e:
-        print(f"❌ SendGrid Error: {e}")
+        print(f"❌ SendGrid Error Type: {type(e).__name__}")
+        print(f"❌ SendGrid Error Message: {str(e)}")
         print(f"📧 FALLBACK OTP FOR {email}: {otp}")
         return False
         
