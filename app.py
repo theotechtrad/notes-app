@@ -15,7 +15,7 @@ CORS(app)
 
 # Configuration
 app.config['SECRET_KEY'] = 'my-super-secret-key-12345'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DB")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['UPLOAD_FOLDER'] = 'uploads'

@@ -1,7 +1,5 @@
-version: "3.9"
-
 services:
-  api:
+  my_auth_api:
     build: .
     container_name: my_auth_api
     ports:
@@ -9,4 +7,5 @@ services:
     env_file:
       - .env
     volumes:
-      - ./instance:/app/instance
+      - .:/app
+    restart: always
