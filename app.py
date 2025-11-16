@@ -71,61 +71,46 @@ def token_required(f):
         return f(current_user, *args, **kwargs)
     return decorated
 
-
-# SendGrid Configuration
-SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
-SENDER_EMAIL = os.getenv("SENDER_EMAIL")
-
-import certifi
+import smtplib
+from email.mime.text import MIMEText
 import os
-os.environ['SSL_CERT_FILE'] = certifi.where()
+from dotenv import load_dotenv
+load_dotenv()
+
+SMTP_HOST = os.getenv("SMTP_HOST")
+SMTP_PORT = int(os.getenv("SMTP_PORT"))
+SMTP_USERNAME = os.getenv("SMTP_USER")
+SMTP_PASSWORD = os.getenv("SMTP_PASS")
+EMAIL_FROM = os.getenv("EMAIL_FROM")
+EMAIL_FROM_NAME = os.getenv("EMAIL_FROM_NAME")
+
 
 def send_otp_email(email, otp):
+    subject = "Your OTP Code"
+
+    html = f"""
+    <h2>Your OTP Code</h2>
+    <p>Your OTP is:</p>
+    <h1 style="letter-spacing:5px;">{otp}</h1>
+    <p>This OTP is valid for 5 minutes.</p>
+    """
+
+    msg = MIMEText(html, "html")
+    msg["Subject"] = subject
+    msg["From"] = f"{EMAIL_FROM_NAME} <{EMAIL_FROM}>"
+    msg["To"] = email
+
     try:
-        from sendgrid import SendGridAPIClient
-        from sendgrid.helpers.mail import Mail
-        
-        print(f"🔄 Attempting to send OTP to {email}")
-        print(f"📧 From: {SENDER_EMAIL}")
-        print(f"🔑 API Key exists: {bool(SENDGRID_API_KEY)}")
-        
-        message = Mail(
-            from_email=SENDER_EMAIL,
-            to_emails=email,
-            subject='Your OTP Code - Authentication System',
-            html_content=f"""
-            <html>
-            <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
-                <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
-                    <h2 style="color: #667eea; text-align: center;">🔐 Your OTP Code</h2>
-                    <div style="background-color: #667eea; color: white; font-size: 32px; font-weight: bold; text-align: center; padding: 20px; border-radius: 8px; letter-spacing: 5px; margin: 20px 0;">
-                        {otp}
-                    </div>
-                    <p style="font-size: 14px; color: #666;">This OTP is valid for <strong>5 minutes</strong>.</p>
-                    <p style="font-size: 14px; color: #666;">If you didn't request this, please ignore this email.</p>
-                </div>
-            </body>
-            </html>
-            """
-        )
-        
-        sg = SendGridAPIClient(SENDGRID_API_KEY)
-        response = sg.send(message)
-        
-        print(f"✅ SendGrid Response Status: {response.status_code}")
-        print(f"✅ SendGrid Response Body: {response.body}")
-        print(f"✅ OTP sent successfully to {email}")
-        
-        return True
-        
+        server = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
+        server.starttls()
+        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        server.sendmail(EMAIL_FROM, email, msg.as_string())
+        server.quit()
+        print("OTP email sent!")
     except Exception as e:
-        print(f"❌ SendGrid Error Type: {type(e).__name__}")
-        print(f"❌ SendGrid Error Message: {str(e)}")
-        print(f"📧 FALLBACK OTP FOR {email}: {otp}")
-        return False
-        
-        
-        
+        print("Email error:", e)
+
+
 # Homepage
 @app.route('/')
 def home():
@@ -543,6 +528,90 @@ def home():
             max-height: 150px;
             border-radius: 5px;
             margin: 10px 0;
+        }
+        
+         /* Responsive Design for Mobile & Tablet */                 
+                                  
+        @media screen and (max-width: 768px) {
+            .auth-container {
+                padding: 30px 20px;
+                max-width: 100%;
+                margin: 10px;
+            }
+            
+            .header {
+                padding: 10px 15px;
+                flex-wrap: wrap;
+            }
+            
+            .header h1 {
+                font-size: 18px;
+            }
+            
+            .header-right {
+                gap: 10px;
+            }
+            
+            .user-email {
+                display: none;
+            }
+            
+            .logout-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .main-content {
+                padding: 15px 10px;
+            }
+            
+            .note-input-section {
+                padding: 15px;
+            }
+            
+            .note-actions {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            
+            .color-picker {
+                overflow-x: auto;
+                padding-bottom: 5px;
+                justify-content: flex-start;
+            }
+            
+            .image-upload-btn, .add-note-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .notes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+            
+            .note-card {
+                height: 250px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .notes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .note-card {
+                height: 220px;
+            }
+            
+            .color-picker {
+                flex-wrap: wrap;
+            }
+            
+            .tabs {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
