@@ -31,9 +31,6 @@ A secure, full-stack note-taking application with Google Keep-inspired design. F
 - Smooth animations
 - Intuitive drag-and-drop interface
 
-## Screenshots
-
-*(Add screenshots here)*
 
 ## Tech Stack
 
