@@ -4,7 +4,7 @@ A secure, full-stack note-taking application with Google Keep-inspired design. F
 
 ## Live Demo
 
-🔗 [Notes App](https://kaakkhusundii.pythonanywhere.com/)
+🔗 [Notes App] https://kaakkhusundii.pythonanywhere.com/
 
 ## Features
 
